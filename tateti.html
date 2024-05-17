@@ -11,23 +11,42 @@
     <main>
       <div class="container">
         <div>
-          <button id="celda">x</button>
-          <button id="celda">o</button>
-          <button id="celda">x</button>
+          <button class="celda" id="celda"></button>
+          <button class="celda" id="celda"></button>
+          <button class="celda" id="celda"></button>
         </div>
         <div>
-          <button id="celda">x</button>
-          <button id="celda">o</button>
-          <button id="celda">x</button>
+          <button class="celda" id="celda"></button>
+          <button class="celda" id="celda"></button>
+          <button class="celda" id="celda"></button>
         </div>
         <div>
-          <button id="celda">x</button>
-          <button id="celda">o</button>
-          <button id="celda">x</button>
+          <button class="celda" id="celda"></button>
+          <button class="celda" id="celda"></button>
+          <button class="celda" id="celda"></button>
         </div>
       </div>
     </main>
     <script>
+      const celdas = document.querySelectorAll('.celda');
+      let turno = "cruz"
+
+      celdas.forEach(celda => {
+        celda.addEventListener('click', () => {
+          if (turno == 'cruz'){
+            celda.innerText = "x"
+            turno = 'circulo'
+            return
+          }
+
+          if (turno == 'circulo'){
+            celda.innerText = "o"
+            turno = 'cruz'
+          }
+        });
+      });
+
+      
     //   tf.ready().then(() => {
     //     const modelPath = 'model/ttt_model.json'
     //     tf.tidy(() => {
