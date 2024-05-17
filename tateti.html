@@ -31,6 +31,11 @@
       const celdas = document.querySelectorAll('.celda');
       let turno = "cruz"
 
+      // const emptyBoard = tf.zeros([9])
+      const board = tf.tensor([0, 0, 0, 0, 0, 0, 0, 0, 0])
+      // const goForTheKill = tf.tensor([0, 0, 0, 0, 0, 0, 0, 0, 0])
+
+
       celdas.forEach(celda => {
         
         celda.addEventListener('click', () => {
@@ -39,6 +44,9 @@
             celda.innerText = "x"
             celda.setAttribute("disabled", "true")
             turno = 'circulo'
+
+
+
             return
           }
 
@@ -46,28 +54,28 @@
             celda.innerText = "o"
             celda.setAttribute("disabled", "true")
             turno = 'cruz'
+            
+            
           }
         });
       });
 
-      
-    //   tf.ready().then(() => {
-    //     const modelPath = 'model/ttt_model.json'
-    //     tf.tidy(() => {
-    //       tf.loadLayersModel(modelPath).then((model) => {
-    //         // Three board states
-    //         const emptyBoard = tf.zeros([9])
-    //         const betterBlockMe = tf.tensor([-1, 0, 0, 1, 1, -1, 0, 0, -1])
-    //         const goForTheKill = tf.tensor([1, 0, 1, 0, -1, -1, -1, 0, 1])
+      function predictNextMove() {
+        tf.ready().then(() => {
+          const modelPath = 'model/ttt_model.json';
+          tf.tidy(() => {
+            tf.loadLayersModel(modelPath).then((model) => {
+              const matches = tf.stack([board]);
+              const result = model.predict(matches);
+              result.reshape([3]).print();
+              console.log(result);
+            });
+          });
+        });
+      }
 
-    //         // Stack states into a shape [3, 9]
-    //         const matches = tf.stack([emptyBoard, betterBlockMe, goForTheKill])
-    //         const result = model.predict(matches)
-    //         // Log the results
-    //         result.reshape([3, 3, 3]).print()
-    //       })
-    //     })
-    //   })
+      
+
     </script>
   </body>
 </html>
