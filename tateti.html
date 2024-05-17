@@ -32,15 +32,19 @@
       let turno = "cruz"
 
       celdas.forEach(celda => {
+        
         celda.addEventListener('click', () => {
+
           if (turno == 'cruz'){
             celda.innerText = "x"
+            celda.setAttribute("disabled", "true")
             turno = 'circulo'
             return
           }
 
           if (turno == 'circulo'){
             celda.innerText = "o"
+            celda.setAttribute("disabled", "true")
             turno = 'cruz'
           }
         });

@@ -3,7 +3,6 @@
 }
 
 .container{
-    background-color: black;
     color: aliceblue;
     text-align: center;
     display: flex;
@@ -12,7 +11,8 @@
 
 #celda{
     padding: 10px;
-    background-color: bisque;
+    background-color: black;
+    color: white;
     margin: 10px;
     width: 100px;
     height: 100px;
