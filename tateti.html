@@ -11,117 +11,65 @@
     <main>
       <div class="container">
         <div>
-          <button class="celda" id="celda"></button>
-          <button class="celda" id="celda"></button>
-          <button class="celda" id="celda"></button>
+          <button class="celda" id="celda-0"></button>
+          <button class="celda" id="celda-1"></button>
+          <button class="celda" id="celda-2"></button>
         </div>
         <div>
-          <button class="celda" id="celda"></button>
-          <button class="celda" id="celda"></button>
-          <button class="celda" id="celda"></button>
+          <button class="celda" id="celda-3"></button>
+          <button class="celda" id="celda-4"></button>
+          <button class="celda" id="celda-5"></button>
         </div>
         <div>
-          <button class="celda" id="celda"></button>
-          <button class="celda" id="celda"></button>
-          <button class="celda" id="celda"></button>
+          <button class="celda" id="celda-6"></button>
+          <button class="celda" id="celda-7"></button>
+          <button class="celda" id="celda-8"></button>
         </div>
       </div>
     </main>
     <script>
       const celdas = document.querySelectorAll('.celda');
-      let turno = "cruz"
+      let turno = "cruz";
 
-      let board = tf.tensor([0, 0, 0, 0, 0, 0, 0, 0, 0])
+      let board = tf.tensor1d([0, 0, 0, 0, 0, 0, 0, 0, 0]);
 
+      celdas.forEach((celda, index) => {
+        celda.addEventListener('click', async () => {
+          if (turno === 'cruz' && celda.innerText === "") {
+            celda.innerText = "x";
+            celda.setAttribute("disabled", "true");
+            turno = 'circulo';
+            await updateTensor(index, -1);
 
-      celdas.forEach((celda, index) =>{
-        celda.addEventListener('click', async() => {
-          if (turno == 'cruz'){
-            celda.innerText = "x"
-            celda.setAttribute("disabled", "true")
-            turno = 'circulo'
-
-            updateTensor(changeIndex(index), -1)
-            await PlayerCpu()
-            return
+            const result = await predictNextMove(board);
+            if (result !== null) {
+              updateTensor(result, 1);
+              const oCelda = document.getElementById(`celda-${result}`);
+              oCelda.innerText = "o";
+              oCelda.setAttribute("disabled", "true");
+              turno = 'cruz';
+            }
           }
-
-          // if (turno == 'circulo'){
-          //   celda.innerText = "o"
-          //   celda.setAttribute("disabled", "true")
-          //   turno = 'cruz'
-          //   updateTensor(changeIndex(index), 1)
-            
-          // }
-
-          // predictNextMove()
         });
       });
 
-      function predictNextMove(board) {
-        return tf.ready().then(() => {
-          const modelPath = 'model/ttt_model.json';
-          return tf.loadLayersModel(modelPath).then((model) => {
-            const matches = tf.stack([board]);
-            const result = model.predict(matches);
-            const maxIndex = result.argMax(1).dataSync()[0]
-            return maxIndex;
-          });
-        });
+      async function predictNextMove(board) {
+        await tf.ready();
+        const modelPath = 'model/ttt_model.json';
+        const model = await tf.loadLayersModel(modelPath);
+        const reshapedBoard = board.reshape([1, 9]);
+        const result = model.predict(reshapedBoard);
+        const maxIndex = result.argMax(1).dataSync()[0];
+
+        const position = board.dataSync();
+        return position[maxIndex] === 0 ? maxIndex : null;
       }
 
-      function updateTensor(index, value){
-        const newBoard = board.dataSync()
-
-        newBoard[index] = value
-
-        board = tf.tensor(newBoard)
-      }
-      
-
-      function changeIndex(index){
-        switch(index){
-          case 0: 
-            return 0;
-          
-          case 1:
-            return 3;
-
-          case 2:
-            return 6;
-          
-          case 3:
-            return 1;
-          
-          case 4:
-            return 4;
-          
-          case 5:
-            return 7;
-          
-          case 6:
-            return 2;
-          
-          case 7:
-            return 5;
-
-          case 8:
-            return 8;
-        }
-      }
-
-
-      function PlayerCpu(){
-        predictNextMove(board).then(result => {
-
-        celdas.forEach((celda,index) => {
-          if(index == result){
-            celda.innerText = "o"
-            celda.setAttribute("disabled", "true")
-            turno = 'cruz'
-          }
-        })
-        })
+      function updateTensor(index, value) {
+        const newBoard = board.dataSync();
+        newBoard[index] = value;
+        board = tf.tensor1d(newBoard);
+        board.print();
       }
     </script>
   </body>
