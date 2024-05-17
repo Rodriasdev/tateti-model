@@ -31,9 +31,7 @@
       const celdas = document.querySelectorAll('.celda');
       let turno = "cruz"
 
-      // const emptyBoard = tf.zeros([9])
       const board = tf.tensor([0, 0, 0, 0, 0, 0, 0, 0, 0])
-      // const goForTheKill = tf.tensor([0, 0, 0, 0, 0, 0, 0, 0, 0])
 
 
       celdas.forEach(celda => {
@@ -46,7 +44,7 @@
             turno = 'circulo'
 
 
-
+            predictNextMove()
             return
           }
 
@@ -57,6 +55,8 @@
             
             
           }
+
+          predictNextMove()
         });
       });
 
@@ -67,8 +67,7 @@
             tf.loadLayersModel(modelPath).then((model) => {
               const matches = tf.stack([board]);
               const result = model.predict(matches);
-              result.reshape([3]).print();
-              console.log(result);
+              result.print();
             });
           });
         });
