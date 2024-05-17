@@ -34,40 +34,38 @@
       let board = tf.tensor([0, 0, 0, 0, 0, 0, 0, 0, 0])
 
 
-      celdas.forEach((celda, index) => {
-        celda.addEventListener('click', () => {
-          console.log(index);
+      celdas.forEach((celda, index) =>{
+        celda.addEventListener('click', async() => {
           if (turno == 'cruz'){
             celda.innerText = "x"
             celda.setAttribute("disabled", "true")
             turno = 'circulo'
 
             updateTensor(changeIndex(index), -1)
-            predictNextMove()
+            await PlayerCpu()
             return
           }
 
-          if (turno == 'circulo'){
-            celda.innerText = "o"
-            celda.setAttribute("disabled", "true")
-            turno = 'cruz'
-            updateTensor(changeIndex(index), 1)
+          // if (turno == 'circulo'){
+          //   celda.innerText = "o"
+          //   celda.setAttribute("disabled", "true")
+          //   turno = 'cruz'
+          //   updateTensor(changeIndex(index), 1)
             
-          }
+          // }
 
-          predictNextMove()
+          // predictNextMove()
         });
       });
 
-      function predictNextMove() {
-        tf.ready().then(() => {
+      function predictNextMove(board) {
+        return tf.ready().then(() => {
           const modelPath = 'model/ttt_model.json';
-          tf.tidy(() => {
-            tf.loadLayersModel(modelPath).then((model) => {
-              const matches = tf.stack([board]);
-              const result = model.predict(matches);
-              result.print();
-            });
+          return tf.loadLayersModel(modelPath).then((model) => {
+            const matches = tf.stack([board]);
+            const result = model.predict(matches);
+            const maxIndex = result.argMax(1).dataSync()[0]
+            return maxIndex;
           });
         });
       }
@@ -112,6 +110,19 @@
         }
       }
 
+
+      function PlayerCpu(){
+        predictNextMove(board).then(result => {
+
+        celdas.forEach((celda,index) => {
+          if(index == result){
+            celda.innerText = "o"
+            celda.setAttribute("disabled", "true")
+            turno = 'cruz'
+          }
+        })
+        })
+      }
     </script>
   </body>
 </html>
