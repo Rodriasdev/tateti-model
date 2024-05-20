@@ -37,10 +37,15 @@
         celda.addEventListener('click', async () => {
           if (turno === 'cruz' && celda.innerText === "") {
             celda.innerText = "x";
-            celda.setAttribute("disabled", "true");
-            turno = 'circulo';
+            await celda.setAttribute("disabled", "true");
             await updateTensor(index, -1);
-
+            turno = 'circulo';
+            
+            if (checkWinner(-1)) {
+              alert("¡Cruz ha ganado!");
+              resetGame();
+              return;
+            }
             const result = await predictNextMove(board);
             if (result !== null) {
               updateTensor(result, 1);
@@ -48,6 +53,12 @@
               oCelda.innerText = "o";
               oCelda.setAttribute("disabled", "true");
               turno = 'cruz';
+              
+              if (checkWinner(1)) {
+                alert("¡Círculo ha ganado!");
+                resetGame();
+                return;
+              }
             }
           }
         });
@@ -62,15 +73,14 @@
         let maxIndex = result.argMax(1).dataSync()[0];
 
         const position = board.dataSync();
-  
-        if (position[maxIndex] === 0){
-          return maxIndex
+        if (position[maxIndex] === 0) {
+          return maxIndex;
         }
-        maxIndex = 0
-        while(position[maxIndex] !== 0){
-          maxIndex = maxIndex + 1
+        maxIndex = 0;
+        while (position[maxIndex] !== 0) {
+          maxIndex = maxIndex + 1;
         }
-        return maxIndex
+        return maxIndex;
       }
 
       function updateTensor(index, value) {
@@ -78,6 +88,28 @@
         newBoard[index] = value;
         board = tf.tensor1d(newBoard);
         board.print();
+      }
+
+      function checkWinner(player) {
+        const winCombinations = [
+          [0, 1, 2], [3, 4, 5], [6, 7, 8], 
+          [0, 3, 6], [1, 4, 7], [2, 5, 8], 
+          [0, 4, 8], [2, 4, 6]             
+        ];
+
+        const boardData = board.dataSync();
+        return winCombinations.some(combination => {
+          return combination.every(index => boardData[index] === player);
+        });
+      }
+
+      function resetGame() {
+        board = tf.tensor1d([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        celdas.forEach(celda => {
+          celda.innerText = "";
+          celda.removeAttribute("disabled");
+        });
+        turno = "cruz";
       }
     </script>
   </body>
